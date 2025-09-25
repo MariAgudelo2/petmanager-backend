@@ -1,5 +1,7 @@
 package com.codefactory.petmanager.g12.petmanager_backend.mapper;
 
+import java.util.List;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -15,4 +17,6 @@ public interface UserMapper {
   @Mapping(source = "roleId", target = "role.id")
   @Mapping(target = "id", ignore = true) // Autogenerado
   User userDTOToUser(UserDTO userDTO);
+
+  List<UserDTO> usersToUserDTOs(List<User> users);
 }

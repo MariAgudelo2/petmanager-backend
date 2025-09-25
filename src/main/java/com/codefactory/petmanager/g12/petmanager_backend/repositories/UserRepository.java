@@ -8,12 +8,13 @@ import com.codefactory.petmanager.g12.petmanager_backend.entities.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> { 
-    // Query Method Naming: findBy + NombreCampo + condición 
 
     Optional<User> findByEmail(String email);
 
     Optional<User> findByIdNumberAndIdType(String idNumber, String idType);
 
-    List<User> findByRole_Name(String roleName);
+    List<User> findByRoleName(String roleName);
+    
+    List<User> findAll();
 
 }
