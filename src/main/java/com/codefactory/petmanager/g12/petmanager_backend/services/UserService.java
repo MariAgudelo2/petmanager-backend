@@ -8,16 +8,14 @@ import com.codefactory.petmanager.g12.petmanager_backend.entities.User;
 import com.codefactory.petmanager.g12.petmanager_backend.repositories.RoleRepository;
 import com.codefactory.petmanager.g12.petmanager_backend.repositories.UserRepository;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class UserService {
     
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-
-    public UserService(UserRepository userRepository, RoleRepository roleRepository) {
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
-    }
 
     public UserDTO getUserByEmail (String email) {
         User user = userRepository.findByEmail(email)
