@@ -8,9 +8,8 @@ import org.springframework.stereotype.Repository;
 
 import com.codefactory.petmanager.g12.petmanager_backend.entities.Supplier;
 
-
 @Repository
-public interface SupplierRepository extends JpaRepository<Supplier, Integer>{
+public interface SupplierRepository extends JpaRepository<Supplier, Integer> {
 
   Optional<Supplier> findByNit(String nit);
 
@@ -19,5 +18,13 @@ public interface SupplierRepository extends JpaRepository<Supplier, Integer>{
   List<Supplier> findAll();
 
   boolean existsByNit(String nit);
+
+  // Add search functionality
+  List<Supplier> findByNameContainingIgnoreCase(String name);
+  
+  // Add more search methods if needed
+  List<Supplier> findByNitContaining(String nit);
+  
+  List<Supplier> findByAddressContainingIgnoreCase(String address);
 
 }

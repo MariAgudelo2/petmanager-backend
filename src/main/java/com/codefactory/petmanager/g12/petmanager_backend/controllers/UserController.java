@@ -12,11 +12,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.codefactory.petmanager.g12.petmanager_backend.dto.UserDTO;
+import com.codefactory.petmanager.g12.petmanager_backend.dto.RoleDTO;
+import com.codefactory.petmanager.g12.petmanager_backend.dto.UserRequestDTO;
+import com.codefactory.petmanager.g12.petmanager_backend.dto.UserResponseDTO;
 import com.codefactory.petmanager.g12.petmanager_backend.services.UserService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-
 
 @RestController
 @RequestMapping("/api/users")
@@ -26,26 +28,38 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<List<UserDTO>> getAllUsers() {
-        List<UserDTO> users = userService.getAllUsers();
+    public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
+        List<UserResponseDTO> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserDTO> getUser(@PathVariable int id) {
-        UserDTO user = userService.getUserById(id);
+    public ResponseEntity<UserResponseDTO> getUser(@PathVariable int id) {
+        UserResponseDTO user = userService.getUserById(id);
         return ResponseEntity.ok(user);
     }
     
     @PostMapping
-    public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO) {
-        UserDTO createdUser = userService.createUser(userDTO);
+    public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
+        UserResponseDTO createdUser = userService.createUser(userRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
 
     @PatchMapping("/{id}/role/{roleId}")
-    public ResponseEntity<UserDTO> changeUserRole(@PathVariable int id, @PathVariable int roleId) {
-        UserDTO updatedUser = userService.changeUserRole(id, roleId);
+    public ResponseEntity<UserResponseDTO> changeUserRole(@PathVariable int id, @PathVariable int roleId) {
+        UserResponseDTO updatedUser = userService.changeUserRole(id, roleId);
         return ResponseEntity.ok(updatedUser);
+    }
+
+    @GetMapping("/roles")
+    public ResponseEntity<List<RoleDTO>> getAllRoles() {
+        List<RoleDTO> roles = userService.getAllRoles();
+        return ResponseEntity.ok(roles);
+    }
+
+    @GetMapping("/roles/{id}")
+    public ResponseEntity<RoleDTO> getRole(@PathVariable int id) {
+        RoleDTO role = userService.getRoleById(id);
+        return ResponseEntity.ok(role);
     }
 }
