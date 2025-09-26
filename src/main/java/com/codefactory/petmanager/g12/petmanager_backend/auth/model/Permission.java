@@ -1,4 +1,4 @@
-package com.codefactory.petmanager.g12.petmanager_backend.identity.model;
+package com.codefactory.petmanager.g12.petmanager_backend.auth.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,11 +11,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "roles")
+@Table(name = "permissions")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Role {
+public class Permission {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

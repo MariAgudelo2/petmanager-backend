@@ -1,6 +1,6 @@
 package com.codefactory.petmanager.g12.petmanager_backend.user.controller.dto;
 
-import com.codefactory.petmanager.g12.petmanager_backend.identity.controller.dto.RoleDTO;
+import com.codefactory.petmanager.g12.petmanager_backend.auth.controller.dto.RoleDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

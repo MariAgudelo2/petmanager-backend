@@ -1,4 +1,4 @@
-package com.codefactory.petmanager.g12.petmanager_backend.identity.model;
+package com.codefactory.petmanager.g12.petmanager_backend.auth.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

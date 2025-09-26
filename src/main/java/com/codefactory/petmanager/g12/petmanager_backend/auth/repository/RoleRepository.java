@@ -1,11 +1,11 @@
-package com.codefactory.petmanager.g12.petmanager_backend.identity.repository;
+package com.codefactory.petmanager.g12.petmanager_backend.auth.repository;
 
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.codefactory.petmanager.g12.petmanager_backend.identity.model.Role;
+import com.codefactory.petmanager.g12.petmanager_backend.auth.model.Role;
 
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Integer> {

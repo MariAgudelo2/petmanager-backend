@@ -1,4 +1,6 @@
-package com.codefactory.petmanager.g12.petmanager_backend.identity.model;
+package com.codefactory.petmanager.g12.petmanager_backend.auth.model;
+
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,11 +13,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "permissions")
+@Table(name = "roles")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Permission {
+public class Role {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,5 +28,10 @@ public class Permission {
 
     @Column(name = "description", nullable = false)
     private String description;
+
+    // Método para spring security
+    public SimpleGrantedAuthority asGrantedAuthority() {
+        return new SimpleGrantedAuthority("ROLE_" + name);
+    }
 
 }

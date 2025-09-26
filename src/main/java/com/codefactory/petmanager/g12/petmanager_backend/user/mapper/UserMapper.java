@@ -5,8 +5,8 @@ import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import com.codefactory.petmanager.g12.petmanager_backend.identity.controller.dto.RoleDTO;
-import com.codefactory.petmanager.g12.petmanager_backend.identity.model.Role;
+import com.codefactory.petmanager.g12.petmanager_backend.auth.controller.dto.RoleDTO;
+import com.codefactory.petmanager.g12.petmanager_backend.auth.model.Role;
 import com.codefactory.petmanager.g12.petmanager_backend.user.controller.dto.UserRequestDTO;
 import com.codefactory.petmanager.g12.petmanager_backend.user.controller.dto.UserResponseDTO;
 import com.codefactory.petmanager.g12.petmanager_backend.user.model.User;

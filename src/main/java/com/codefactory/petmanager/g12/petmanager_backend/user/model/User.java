@@ -1,6 +1,6 @@
 package com.codefactory.petmanager.g12.petmanager_backend.user.model;
 
-import com.codefactory.petmanager.g12.petmanager_backend.identity.model.Role;
+import com.codefactory.petmanager.g12.petmanager_backend.auth.model.Role;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -54,4 +54,9 @@ public class User {
     @Column(name = "is_active", nullable = false)
     private boolean isActive;
 
+    // Método para spring security
+    // devuelve según el método de autenticación, en este caso email
+    public String getUsername() {
+        return email;
+    }
 }

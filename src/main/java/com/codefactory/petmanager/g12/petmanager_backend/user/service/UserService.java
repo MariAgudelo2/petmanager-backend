@@ -4,10 +4,11 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.codefactory.petmanager.g12.petmanager_backend.identity.controller.dto.RoleDTO;
-import com.codefactory.petmanager.g12.petmanager_backend.identity.model.Role;
-import com.codefactory.petmanager.g12.petmanager_backend.identity.repository.RoleRepository;
+import com.codefactory.petmanager.g12.petmanager_backend.auth.controller.dto.RoleDTO;
+import com.codefactory.petmanager.g12.petmanager_backend.auth.model.Role;
+import com.codefactory.petmanager.g12.petmanager_backend.auth.repository.RoleRepository;
 import com.codefactory.petmanager.g12.petmanager_backend.user.controller.dto.UserRequestDTO;
 import com.codefactory.petmanager.g12.petmanager_backend.user.controller.dto.UserResponseDTO;
 import com.codefactory.petmanager.g12.petmanager_backend.user.mapper.UserMapper;
@@ -24,6 +25,7 @@ public class UserService {
     private final UserMapper userMapper;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional(readOnly = true)
     public UserResponseDTO getUserByEmail(String email) {
@@ -51,6 +53,7 @@ public class UserService {
             throw new IllegalArgumentException("Invalid role id: " + userRequestDTO.getRoleId());
         }
         User user = userMapper.userRequestDTOToUser(userRequestDTO);
+        user.setPassword(passwordEncoder.encode(userRequestDTO.getPassword()));
         User savedUser = userRepository.save(user);
         return userMapper.userToUserResponseDTO(savedUser);
     }
