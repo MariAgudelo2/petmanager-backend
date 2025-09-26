@@ -33,4 +33,7 @@ public class Supplier {
   @Column(name = "address", nullable = false, length = 255)
   private String address;
   
+  @Column(name = "email", nullable = true, length = 255)
+  private String email;
+  
 }

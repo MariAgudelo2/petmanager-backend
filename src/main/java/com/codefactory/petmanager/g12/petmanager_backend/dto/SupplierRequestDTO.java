@@ -1,5 +1,6 @@
 package com.codefactory.petmanager.g12.petmanager_backend.dto;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -27,5 +28,9 @@ public class SupplierRequestDTO {
   @NotBlank(message = "Address is required")
   @Size(min = 10, max = 255, message = "Address must be between 10 and 255 characters")
   private String address;
+  
+  @NotBlank(message = "Email is required")
+  @Email(message = "Email must be valid")
+  private String email;
 
 }
