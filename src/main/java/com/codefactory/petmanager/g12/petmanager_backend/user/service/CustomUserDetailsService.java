@@ -24,8 +24,8 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         var domainUser = userRepository.findByEmail(username)  // Dependiendo del tipo de autenticacion que se quiera hacer, en este caso email
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        var authorities = Collections.singletonList(domainUser.getRole().asGrantedAuthority());
-        return new User(domainUser.getUsername(), domainUser.getPassword(), authorities);
+                
+        return new CustomUserDetails(domainUser);
     }
 }
 
