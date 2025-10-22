@@ -27,7 +27,7 @@ import lombok.RequiredArgsConstructor;
 @Tag(name = "Autenticación y registro", description = "Endpoints para la autenticación y registro de usuarios")
 public class AuthController {
 
-    private final AuthService authService;
+  private final AuthService authService;
 	private final UserService userService;
 
 	@Operation(summary = "Inicio de sesión", description = "Autentica el usuario y devuelve un access token JWT.")
