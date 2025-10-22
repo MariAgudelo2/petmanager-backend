@@ -49,6 +49,15 @@ public class UserService {
 
     @Transactional
     public UserResponseDTO createUser(UserRequestDTO userRequestDTO) {
+        if (userRepository.existsByIdNumberAndIdType(userRequestDTO.getIdNumber(), userRequestDTO.getIdType())) {
+        throw new IllegalArgumentException("Ya existe un usuario con el documento: " 
+            + userRequestDTO.getIdNumber() + " y el tipo: " + userRequestDTO.getIdType());
+        }
+
+        if (userRepository.existsByEmail(userRequestDTO.getEmail())) {
+            throw new IllegalArgumentException("Un usuario con el email: " + userRequestDTO.getEmail() + " ya existe!");
+        }
+
         if (!isRoleValid(userRequestDTO.getRoleId())) {
             throw new IllegalArgumentException("role id invalido: " + userRequestDTO.getRoleId());
         }
