@@ -2,6 +2,9 @@ package com.codefactory.petmanager.g12.petmanager_backend.common.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -42,10 +45,27 @@ public class GlobalExceptionHandler {
             .map(error -> error.getField() + ": " + error.getDefaultMessage())
             .distinct()
             .reduce((msg1, msg2) -> msg1 + "; " + msg2)
-            .orElse("Invalid input");
+            .orElse("Los datos proporcionados no son válidos");
     
     ErrorResponse error = new ErrorResponse(errorMessages, HttpStatus.BAD_REQUEST.value());
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+  }
+
+  @ExceptionHandler(HttpMessageNotReadableException.class)
+  public ResponseEntity<ErrorResponse> handleMissingBody(HttpMessageNotReadableException ex) {
+    ErrorResponse error = new ErrorResponse("Se requiere el cuerpo de la petición", HttpStatus.BAD_REQUEST.value());
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+  }
+
+  @ExceptionHandler(DisabledException.class)
+  public ResponseEntity<ErrorResponse> handleDisabledException(DisabledException ex) {
+    ErrorResponse error = new ErrorResponse(ex.getMessage(), HttpStatus.FORBIDDEN.value());
+    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+  }
+
+  public ResponseEntity<ErrorResponse> handleBadCredentials(BadCredentialsException ex) {
+    ErrorResponse error = new ErrorResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED.value());
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
   }
 
   @ExceptionHandler(Exception.class)
