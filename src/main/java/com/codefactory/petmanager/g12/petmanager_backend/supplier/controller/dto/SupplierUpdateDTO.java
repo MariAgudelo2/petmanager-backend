@@ -12,19 +12,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SupplierUpdateDTO {
     
-  @Pattern(regexp = "^[0-9]{9,15}$", message = "NIT must be between 9 and 15 digits")
+  @Pattern(regexp = "^[0-9]{9,15}$", message = "El NIT debe contener entre 9 y 15 digitos")
   private String nit;
   
-  @Size(min = 2, max = 255, message = "Name must be between 2 and 255 characters")
+  @Size(min = 2, max = 255, message = "El nombre debe contener entre 2 y 255 carácteres")
   private String name;
   
-  @Pattern(regexp = "^[0-9+\\-\\s()]{10,16}$", message = "Phone number must be between 10 and 16 characters")
+  @Pattern(regexp = "^[0-9+\\-\\s()]{10,16}$", message = "El número de telefono debe contener entre 10 y 16 carácteres")
   private String phoneNumber;
   
-  @Size(min = 10, max = 255, message = "Address must be between 10 and 255 characters")
+  @Size(min = 10, max = 255, message = "La dirección debe contener entre 10 y 255 carácteres")
   private String address;
   
-  @Email(message = "Email must be valid")
+  @Email(message = "El email debe ser válido")
   private String email;
 
 }

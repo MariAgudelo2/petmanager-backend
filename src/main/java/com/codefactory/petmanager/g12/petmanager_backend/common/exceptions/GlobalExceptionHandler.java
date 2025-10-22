@@ -30,7 +30,7 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(AuthorizationDeniedException.class)
   public ResponseEntity<ErrorResponse> handleAuthorizationDenied(AuthorizationDeniedException ex) {
-    ErrorResponse error = new ErrorResponse("Your role permissions are not enough", HttpStatus.FORBIDDEN.value());
+    ErrorResponse error = new ErrorResponse("No tienes los permisos suficientes", HttpStatus.FORBIDDEN.value());
     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
   }
 

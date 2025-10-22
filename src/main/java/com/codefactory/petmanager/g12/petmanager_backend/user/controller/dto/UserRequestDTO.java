@@ -13,30 +13,30 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserRequestDTO {
   
-  @NotBlank(message = "ID number is required")
-  @Pattern(regexp = "^[0-9]{6,12}$", message = "Document must be between 6 and 12 digits and contain only numbers")
+  @NotBlank(message = "El documento de identificación es requerido")
+  @Pattern(regexp = "^[0-9]{6,12}$", message = "El documento de identificación debe contener entre 6 y 12 digitos")
   private String idNumber;
   
-  @NotBlank(message = "ID type is required")
+  @NotBlank(message = "El tipo de documento es requerido")
   private String idType;
   
-  @NotBlank(message = "Name is required")
-  @Pattern(regexp = "^(?=.*\\s)([A-Za-záéíóúÁÉÍÓÚñÑ\\s]{5,100})$", message = "Name must have at least two words, between 5 and 100 characters, and contain only letters and spaces")
+  @NotBlank(message = "El nombre es requerido")
+  @Pattern(regexp = "^(?=.*\\s)([A-Za-záéíóúÁÉÍÓÚñÑ\\s]{5,100})$", message = "El nombre debe contener al menos dos palabras, entre 5 y 100 carácteres, y contener solo letras y espacios")
   private String name;
   
-  @NotNull(message = "Role ID is required")
+  @NotNull(message = "Role ID es requerido")
   private int roleId;
   
-  @NotBlank(message = "Phone number is required")
+  @NotBlank(message = "El número de telefono es requerido")
   private String phoneNumber;
   
-  @Email(message = "Email must be valid")
-  @NotBlank(message = "Email is required")
+  @Email(message = "El email debe ser válido")
+  @NotBlank(message = "El email es requerido")
   private String email;
   
-  @NotBlank(message = "Password is required")
+  @NotBlank(message = "La contraseña es requerida")
   @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$", 
-           message = "Password must contain at least 8 characters, including one uppercase letter, one lowercase letter, one number, and one special character (@, $, %, !, #, ?)")
+           message = "La contraseña debe contener al menos 8 carácteres, incluyendo una letra mayúscula, una letra minúscula, un número, y un carácter especial (@, $, %, !, #, ?)")
   private String password;
   
   private boolean isActive = true;

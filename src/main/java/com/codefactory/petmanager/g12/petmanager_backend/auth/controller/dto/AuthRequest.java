@@ -7,13 +7,13 @@ import lombok.Data;
 
 @Data
 public class AuthRequest {
-    @Email(message = "Email must be valid")
-    @NotBlank(message = "Email is required")
+    @Email(message = "El email debe ser válido")
+    @NotBlank(message = "El email es requerido")
     private String email;
 
-    @NotBlank(message = "Password is required")
+    @NotBlank(message = "La contraseña es requerida")
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$", 
-        message = "Password must contain at least 8 characters, including one uppercase letter, one lowercase letter, one number, and one special character (@, $, %, !, #, ?)")
+        message = "La contraseña debe contener al menos 8 carácteres, incluyendo una letra mayúscula, una letra minúscula, un número, y un carácter especial (@, $, %, !, #, ?)")
     private String password;
 }
 

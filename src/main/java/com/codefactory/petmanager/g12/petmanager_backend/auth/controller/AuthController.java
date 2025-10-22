@@ -33,6 +33,7 @@ public class AuthController {
 	@Operation(summary = "Inicio de sesión", description = "Autentica el usuario y devuelve un access token JWT.")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "Inicio de sesión exitoso, token devuelto"),
+		@ApiResponse(responseCode = "400", description = "Información de inicio de sesión inválida"),
 		@ApiResponse(responseCode = "401", description = "Credenciales invalidas")
 	})
 	@PostMapping("/login")
