@@ -63,6 +63,7 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
   }
 
+  @ExceptionHandler(BadCredentialsException.class)
   public ResponseEntity<ErrorResponse> handleBadCredentials(BadCredentialsException ex) {
     ErrorResponse error = new ErrorResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED.value());
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
