@@ -26,7 +26,7 @@ public class AuthService {
             Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(email, password)
             );
-            var user = auth.getPrincipal(); // CustomUserDetails, if it made it here, authentication was successful
+            auth.getPrincipal();
             var role = auth.getAuthorities().stream().findFirst().map(a -> a.getAuthority()).orElseThrow(() -> new InternalError("Role not found"));
             return jwtService.generateToken(email, role);
         } catch (DisabledException ex) {
