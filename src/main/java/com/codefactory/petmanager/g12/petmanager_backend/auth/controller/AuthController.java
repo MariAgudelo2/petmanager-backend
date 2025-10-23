@@ -27,12 +27,13 @@ import lombok.RequiredArgsConstructor;
 @Tag(name = "Autenticación y registro", description = "Endpoints para la autenticación y registro de usuarios")
 public class AuthController {
 
-    private final AuthService authService;
+  private final AuthService authService;
 	private final UserService userService;
 
 	@Operation(summary = "Inicio de sesión", description = "Autentica el usuario y devuelve un access token JWT.")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "Inicio de sesión exitoso, token devuelto"),
+		@ApiResponse(responseCode = "400", description = "Información de inicio de sesión inválida"),
 		@ApiResponse(responseCode = "401", description = "Credenciales invalidas")
 	})
 	@PostMapping("/login")

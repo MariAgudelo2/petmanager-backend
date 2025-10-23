@@ -20,7 +20,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         var domainUser = userRepository.findByEmail(username)  // Dependiendo del tipo de autenticacion que se quiera hacer, en este caso email
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
 
         return new CustomUserDetails(domainUser);
     }

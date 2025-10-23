@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -92,7 +93,7 @@ public class SupplierController {
     return ResponseEntity.ok(supplier);
   }
 
-  @Operation(summary = "Crear proveedor", description = "Crea un nuevo proveedor con los datos proporcionados")
+  @Operation(summary = "Crear proveedor", description = "Crea un nuevo proveedor con los datos proporcionados. Necesario rol ADMIN o MANAGER.")
   @ApiResponses(value = {
     @ApiResponse(responseCode = "201", description = "Proveedor creado",
       content = @Content(mediaType = "application/json",
@@ -104,13 +105,14 @@ public class SupplierController {
       content = @Content(mediaType = "application/json",
       schema = @Schema(implementation = ErrorResponse.class)))
   })
+  @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
   @PostMapping
   public ResponseEntity<SupplierResponseDTO> createSupplier(@Valid @RequestBody SupplierRequestDTO supplierRequestDTO) {
     SupplierResponseDTO createdSupplier = supplierService.createSupplier(supplierRequestDTO);
     return ResponseEntity.status(HttpStatus.CREATED).body(createdSupplier);
   }
 
-  @Operation(summary = "Actualizar proveedor", description = "Actualiza un proveedor existente que coincida con el ID proporcionado")
+  @Operation(summary = "Actualizar proveedor", description = "Actualiza un proveedor existente que coincida con el ID proporcionado. Necesario rol ADMIN o MANAGER.")
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Proveedor actualizado",
       content = @Content(mediaType = "application/json",
@@ -122,19 +124,21 @@ public class SupplierController {
       content = @Content(mediaType = "application/json",
       schema = @Schema(implementation = ErrorResponse.class)))
   })
+  @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
   @PutMapping("/{id}")
   public ResponseEntity<SupplierResponseDTO> updateSupplier(@PathVariable int id, @Valid @RequestBody SupplierUpdateDTO supplierUpdateDTO) {
     SupplierResponseDTO updatedSupplier = supplierService.updateSupplier(id, supplierUpdateDTO);
     return ResponseEntity.ok(updatedSupplier);
   }
 
-  @Operation(summary = "Eliminar proveedor", description = "Elimina un proveedor que coincida con el ID proporcionado")
+  @Operation(summary = "Eliminar proveedor", description = "Elimina un proveedor que coincida con el ID proporcionado. Necesario rol ADMIN o MANAGER.")
   @ApiResponses(value = {
     @ApiResponse(responseCode = "204", description = "Proveedor eliminado"),
     @ApiResponse(responseCode = "404", description = "Proveedor no encontrado",
       content = @Content(mediaType = "application/json",
       schema = @Schema(implementation = ErrorResponse.class)))
   })
+  @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteSupplier(@PathVariable int id) {
     supplierService.deleteSupplier(id);

@@ -26,13 +26,13 @@ public class AuthService {
             Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(email, password)
             );
-            var user = auth.getPrincipal(); // CustomUserDetails, if it made it here, authentication was successful
-            var role = auth.getAuthorities().stream().findFirst().map(a -> a.getAuthority()).orElseThrow(() -> new InternalError("Role not found"));
+            auth.getPrincipal();
+            var role = auth.getAuthorities().stream().findFirst().map(a -> a.getAuthority()).orElseThrow(() -> new InternalError("Rol no encontrado"));
             return jwtService.generateToken(email, role);
         } catch (DisabledException ex) {
-            throw new RuntimeException("User account is disabled", ex);
+            throw new DisabledException("La cuenta del usuario está desactivada", ex);
         } catch (BadCredentialsException ex) {
-            throw new RuntimeException("Invalid email or password", ex);
+            throw new BadCredentialsException("El email o contraseña son inválidos", ex);
         }
     }
 }

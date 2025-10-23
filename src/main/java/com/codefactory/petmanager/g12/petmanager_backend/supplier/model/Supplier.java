@@ -21,10 +21,10 @@ public class Supplier {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
 
-  @Column(name = "nit", nullable = false, length = 255)
+  @Column(name = "nit", nullable = false, length = 255, unique = true)
   private String nit;
 
-  @Column(name = "name", nullable = false, length = 255)
+  @Column(name = "name", nullable = false, length = 255, unique = true)
   private String name;
 
   @Column(name = "phone_number", nullable = false, length = 16)

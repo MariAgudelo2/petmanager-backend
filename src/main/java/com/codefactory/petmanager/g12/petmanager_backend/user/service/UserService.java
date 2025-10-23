@@ -30,14 +30,14 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserResponseDTO getUserByEmail(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));
+                .orElseThrow(() -> new EntityNotFoundException("No se ha encontrado un usuario con email: " + email));
         return userMapper.userToUserResponseDTO(user);
     }
 
     @Transactional(readOnly = true)
     public UserResponseDTO getUserById(int userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> new EntityNotFoundException("No se ha encontrado un usuario con id: " + userId));
         return userMapper.userToUserResponseDTO(user);
     }
 
@@ -49,8 +49,17 @@ public class UserService {
 
     @Transactional
     public UserResponseDTO createUser(UserRequestDTO userRequestDTO) {
+        if (userRepository.existsByIdNumberAndIdType(userRequestDTO.getIdNumber(), userRequestDTO.getIdType())) {
+        throw new IllegalArgumentException("Ya existe un usuario con el documento: " 
+            + userRequestDTO.getIdNumber() + " y el tipo: " + userRequestDTO.getIdType());
+        }
+
+        if (userRepository.existsByEmail(userRequestDTO.getEmail())) {
+            throw new IllegalArgumentException("Un usuario con el email: " + userRequestDTO.getEmail() + " ya existe!");
+        }
+
         if (!isRoleValid(userRequestDTO.getRoleId())) {
-            throw new IllegalArgumentException("Invalid role id: " + userRequestDTO.getRoleId());
+            throw new IllegalArgumentException("role id invalido: " + userRequestDTO.getRoleId());
         }
         User user = userMapper.userRequestDTOToUser(userRequestDTO);
         user.setPassword(passwordEncoder.encode(userRequestDTO.getPassword()));
@@ -61,9 +70,9 @@ public class UserService {
     @Transactional
     public UserResponseDTO changeUserRole(int userId, int roleId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> new EntityNotFoundException("No se ha encontrado un usuario con id: " + userId));
         Role role = roleRepository.findById(roleId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid role id: " + roleId));
+                .orElseThrow(() -> new IllegalArgumentException("role id invalido: " + roleId));
         user.setRole(role);
         User updatedUser = userRepository.save(user);
         return userMapper.userToUserResponseDTO(updatedUser);
@@ -78,7 +87,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public RoleDTO getRoleById(int roleId) {
         Role role = roleRepository.findById(roleId)
-                .orElseThrow(() -> new EntityNotFoundException("Role not found with id: " + roleId));
+                .orElseThrow(() -> new EntityNotFoundException("No se ha encontrado el rol con id: " + roleId));
         return userMapper.roleToRoleDTO(role);
     }
 
