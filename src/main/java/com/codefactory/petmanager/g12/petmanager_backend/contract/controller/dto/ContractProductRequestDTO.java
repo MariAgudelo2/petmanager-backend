@@ -1,7 +1,5 @@
 package com.codefactory.petmanager.g12.petmanager_backend.contract.controller.dto;
 
-import java.math.BigDecimal;
-
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -17,10 +15,4 @@ public class ContractProductRequestDTO {
 
     @Min(value = 1, message = "La cantidad debe ser mayor que cero")
     private int quantity;
-
-    @NotNull(message = "El precio por unidad es obligatorio")
-    private BigDecimal pricePerUnit;
-
-    @NotNull(message = "El monto total es obligatorio")
-    private BigDecimal totalAmount;
 }

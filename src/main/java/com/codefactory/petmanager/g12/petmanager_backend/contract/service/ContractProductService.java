@@ -37,6 +37,7 @@ public class ContractProductService {
         return mapper.toResponseDTO(entity);
     }
 
+    @Transactional
     public ContractProductResponseDTO create(ContractProductRequestDTO dto) {
         var contract = contractRepository.findById(dto.getContractId())
             .orElseThrow(() -> new IllegalArgumentException("Contrato no encontrado con ID: " + dto.getContractId()));
@@ -44,14 +45,22 @@ public class ContractProductService {
         var product = productRepository.findById(dto.getProductId())
             .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado con ID: " + dto.getProductId()));
 
-        ContractProduct entity = mapper.toEntity(dto);
+        ContractProduct entity = new ContractProduct();
         entity.setContract(contract);
         entity.setProduct(product);
+        entity.setQuantity(dto.getQuantity());
+
+        entity.setPricePerUnit(product.getSalePrice());
+        entity.setTotalAmount(product.getSalePrice().multiply(
+            java.math.BigDecimal.valueOf(dto.getQuantity())
+        ));
 
         ContractProduct saved = repository.save(entity);
         return mapper.toResponseDTO(saved);
     }
 
+
+    @Transactional
     public ContractProductResponseDTO update(int id, ContractProductRequestDTO dto) {
         ContractProduct entity = repository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Contrato producto no encontrado con ID: " + id));
@@ -62,9 +71,14 @@ public class ContractProductService {
         var product = productRepository.findById(dto.getProductId())
             .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado con ID: " + dto.getProductId()));
 
-        mapper.updateEntityFromDTO(dto, entity);
         entity.setContract(contract);
         entity.setProduct(product);
+        entity.setQuantity(dto.getQuantity());
+
+        entity.setPricePerUnit(product.getSalePrice());
+        entity.setTotalAmount(product.getSalePrice().multiply(
+            java.math.BigDecimal.valueOf(dto.getQuantity())
+        ));
 
         ContractProduct updated = repository.save(entity);
         return mapper.toResponseDTO(updated);

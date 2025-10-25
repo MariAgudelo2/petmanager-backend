@@ -37,7 +37,7 @@ public class ContractProduct {
   private Product product;
 
   @Column(name = "quantity", nullable = false)
-  private int quantity;
+  private Integer quantity;
 
   @Column(name = "price_per_unit", nullable = false)
   private BigDecimal pricePerUnit;
