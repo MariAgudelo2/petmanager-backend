@@ -2,6 +2,10 @@ package com.codefactory.petmanager.g12.petmanager_backend.supplier.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -51,16 +55,28 @@ public class SupplierController {
     return ResponseEntity.ok(suppliers);
   }
 
-  @Operation(summary = "Busca proveedores por el nombre", description = "Devuelve los proveedores que coinciden con el nombre proporcionado (no distingue mayúsculas y minúsculas)")
+  @Operation(summary = "Buscar proveedores con filtros y paginación", 
+            description = "Permite filtrar por nombre, NIT, dirección o condición de pago, con resultados paginados.")
   @ApiResponses(value = {
-    @ApiResponse(responseCode = "200", description = "Operación exitosa",
-      content = @Content(mediaType = "application/json",
-      schema = @Schema(implementation = SupplierResponseDTO.class)))
+      @ApiResponse(responseCode = "200", description = "Operación exitosa",
+          content = @Content(mediaType = "application/json",
+          schema = @Schema(implementation = SupplierResponseDTO.class)))
   })
   @GetMapping("/search")
-  public ResponseEntity<List<SupplierResponseDTO>> searchSuppliers(@RequestParam String name) {
-    List<SupplierResponseDTO> suppliers = supplierService.searchSuppliersByName(name);
-    return ResponseEntity.ok(suppliers);
+  public ResponseEntity<Page<SupplierResponseDTO>> searchSuppliers(
+        @RequestParam(required = false) String name,
+        @RequestParam(required = false) String nit,
+        @RequestParam(required = false) String address,
+        @RequestParam(required = false) Integer paymentConditionId,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(defaultValue = "id,asc") String[] sort) {
+
+    Sort.Direction direction = sort[1].equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+    Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sort[0]));
+
+    Page<SupplierResponseDTO> result = supplierService.searchSuppliers(name, nit, address, paymentConditionId, pageable);
+    return ResponseEntity.ok(result);
   }
 
   @Operation(summary = "Obtener proveedor por ID", description = "Devuelve el proveedor que coincida con el ID proporcionado")

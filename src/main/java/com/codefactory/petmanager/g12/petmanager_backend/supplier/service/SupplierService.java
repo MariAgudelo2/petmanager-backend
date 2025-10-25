@@ -3,6 +3,9 @@ package com.codefactory.petmanager.g12.petmanager_backend.supplier.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +17,7 @@ import com.codefactory.petmanager.g12.petmanager_backend.supplier.controller.dto
 import com.codefactory.petmanager.g12.petmanager_backend.supplier.mapper.SupplierMapper;
 import com.codefactory.petmanager.g12.petmanager_backend.supplier.model.Supplier;
 import com.codefactory.petmanager.g12.petmanager_backend.supplier.repository.SupplierRepository;
+import com.codefactory.petmanager.g12.petmanager_backend.supplier.repository.specification.SupplierSpecification;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +48,24 @@ public class SupplierService {
   public List<SupplierResponseDTO> getAllSuppliers() {
       List<Supplier> suppliers = supplierRepository.findAll();
       return supplierMapper.suppliersToSupplierResponseDTOs(suppliers);
+  }
+
+  @Transactional(readOnly = true)
+  public Page<SupplierResponseDTO> searchSuppliers(
+    String name,
+    String nit,
+    String address,
+    Integer paymentConditionId,
+    Pageable pageable) {
+
+    Specification<Supplier> spec = Specification
+            .where(SupplierSpecification.nameContains(name))
+            .and(SupplierSpecification.nitContains(nit))
+            .and(SupplierSpecification.addressContains(address))
+            .and(SupplierSpecification.paymentConditionEquals(paymentConditionId));
+
+    Page<Supplier> resultPage = supplierRepository.findAll(spec, pageable);
+    return resultPage.map(supplierMapper::supplierToSupplierResponseDTO);
   }
 
   @Transactional(readOnly = true)
