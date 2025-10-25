@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SupplierRequestDTO {
-    
+
   @NotBlank(message = "El NIT es requerido")
   @Pattern(regexp = "^[0-9]{9,15}$", message = "El NIT debe contener entre 9 y 15 digitos")
   private String nit;
