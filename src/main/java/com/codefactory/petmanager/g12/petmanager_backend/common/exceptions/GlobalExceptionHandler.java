@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -67,6 +68,12 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ErrorResponse> handleBadCredentials(BadCredentialsException ex) {
     ErrorResponse error = new ErrorResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED.value());
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+  }
+
+  @ExceptionHandler(LockedException.class)
+  public ResponseEntity<ErrorResponse> handleLockedException(LockedException ex) {
+    ErrorResponse error = new ErrorResponse(ex.getMessage(), HttpStatus.LOCKED.value());
+    return ResponseEntity.status(HttpStatus.LOCKED).body(error);
   }
 
   @ExceptionHandler(Exception.class)
