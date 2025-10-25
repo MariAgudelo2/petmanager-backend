@@ -1,10 +1,15 @@
 package com.codefactory.petmanager.g12.petmanager_backend.supplier.model;
 
+import com.codefactory.petmanager.g12.petmanager_backend.payment.model.PaymentCondition;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -36,4 +41,10 @@ public class Supplier {
   @Column(name = "email", nullable = true, length = 255)
   private String email;
   
+  @ManyToOne(fetch = FetchType.EAGER)
+  @JoinColumn(name = "payment_condition_id")
+  private PaymentCondition paymentCondition;
+
+  @Column(name = "payment_notes", columnDefinition = "TEXT")
+  private String paymentNotes;
 }

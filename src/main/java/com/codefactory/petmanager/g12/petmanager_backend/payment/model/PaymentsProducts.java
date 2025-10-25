@@ -1,4 +1,4 @@
-package com.codefactory.petmanager.g12.petmanager_backend.contract.model;
+package com.codefactory.petmanager.g12.petmanager_backend.payment.model;
 
 import java.math.BigDecimal;
 
@@ -15,16 +15,16 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "contract_products")
-public class ContractProduct {
+@Table(name = "payments_products")
+public class PaymentsProducts {
   
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
 
-  @ManyToOne(optional = false, fetch = FetchType.LAZY)
-  @JoinColumn(name = "contract_id", nullable = false)
-  private Contract contract;
+  @ManyToOne(optional = false, fetch = FetchType.EAGER)
+  @JoinColumn(name = "payment_id", nullable = false)
+  private Payment payment;
 
   @ManyToOne(optional = false, fetch = FetchType.EAGER)
   @JoinColumn(name = "product_id", nullable = false)
@@ -40,4 +40,3 @@ public class ContractProduct {
   private BigDecimal totalAmount;
   
 }
-

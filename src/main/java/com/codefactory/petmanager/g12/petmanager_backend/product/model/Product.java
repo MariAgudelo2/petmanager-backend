@@ -1,7 +1,5 @@
 package com.codefactory.petmanager.g12.petmanager_backend.product.model;
 
-import java.math.BigDecimal;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -28,9 +26,6 @@ public class Product {
 
   @Column(name = "brand", nullable = false, length = 255)
   private String brand;
-
-  @Column(name = "sale_price", nullable = false)
-  private BigDecimal salePrice;
 
   @Column(name = "description", length = 255)
   private String description;
