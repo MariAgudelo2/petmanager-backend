@@ -27,4 +27,8 @@ public class SupplierUpdateDTO {
   @Email(message = "El email debe ser válido")
   private String email;
 
+  private Integer paymentConditionId;
+
+  private String paymentNotes;
+
 }

@@ -6,6 +6,8 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.codefactory.petmanager.g12.petmanager_backend.payment.model.PaymentCondition;
+import com.codefactory.petmanager.g12.petmanager_backend.payment.repository.PaymentConditionRepository;
 import com.codefactory.petmanager.g12.petmanager_backend.supplier.controller.dto.SupplierRequestDTO;
 import com.codefactory.petmanager.g12.petmanager_backend.supplier.controller.dto.SupplierResponseDTO;
 import com.codefactory.petmanager.g12.petmanager_backend.supplier.controller.dto.SupplierUpdateDTO;
@@ -22,6 +24,7 @@ public class SupplierService {
     
   private final SupplierMapper supplierMapper;
   private final SupplierRepository supplierRepository;
+  private final PaymentConditionRepository paymentConditionRepository;
 
   @Transactional(readOnly = true)
   public SupplierResponseDTO getSupplierById(int supplierId) {
@@ -59,8 +62,15 @@ public class SupplierService {
       if (existingSupplier.isPresent()) {
           throw new IllegalArgumentException("Un proveedor con el nombre " + supplierRequestDTO.getName() + " ya existe!");
       }
+
+      int paymentConditionId = supplierRequestDTO.getPaymentConditionId() != null ? supplierRequestDTO.getPaymentConditionId() : 1;
+
+      PaymentCondition paymentCondition = paymentConditionRepository.findById(paymentConditionId)
+                    .orElseThrow(() -> new EntityNotFoundException("No se ha encontrado una condición de pago con id: " + supplierRequestDTO.getPaymentConditionId()));
       
       Supplier supplier = supplierMapper.supplierRequestDTOToSupplier(supplierRequestDTO);
+      supplier.setPaymentCondition(paymentCondition);
+
       Supplier savedSupplier = supplierRepository.save(supplier);
       return supplierMapper.supplierToSupplierResponseDTO(savedSupplier);
   }
@@ -92,6 +102,16 @@ public class SupplierService {
       
       if (supplierUpdateDTO.getAddress() != null) {
           existingSupplier.setAddress(supplierUpdateDTO.getAddress());
+      }
+
+      if (supplierUpdateDTO.getPaymentConditionId() != null) {
+          PaymentCondition newPaymentCondition = paymentConditionRepository.findById(supplierUpdateDTO.getPaymentConditionId())
+                        .orElseThrow(() -> new EntityNotFoundException("No se ha encontrado una condición de pago con id: " + supplierUpdateDTO.getPaymentConditionId()));
+          existingSupplier.setPaymentCondition(newPaymentCondition);
+      }
+
+      if (supplierUpdateDTO.getPaymentNotes() != null) {
+          existingSupplier.setPaymentNotes(supplierUpdateDTO.getPaymentNotes());
       }
       
       Supplier updatedSupplier = supplierRepository.save(existingSupplier);
