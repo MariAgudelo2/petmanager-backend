@@ -17,4 +17,5 @@ public class PaymentResponseDTO {
     private LocalDate paymentDate;
     private BigDecimal amount;
     private String notes;
+
 }

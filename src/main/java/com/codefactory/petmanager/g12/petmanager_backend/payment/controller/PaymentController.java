@@ -9,8 +9,6 @@ import com.codefactory.petmanager.g12.petmanager_backend.common.exceptions.dto.E
 import com.codefactory.petmanager.g12.petmanager_backend.payment.controller.dto.PaymentRequestDTO;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.controller.dto.PaymentResponseDTO;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.service.PaymentService;
-import com.codefactory.petmanager.g12.petmanager_backend.supplier.controller.dto.SupplierRequestDTO;
-import com.codefactory.petmanager.g12.petmanager_backend.supplier.controller.dto.SupplierResponseDTO;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -30,9 +28,9 @@ public class PaymentController {
 
     private final PaymentService paymentService;
 
-    @Operation(summary = "Crear pago", description = "Crea un nuevo pago con los datos proporcionados. Necesario rol ADMIN o MANAGER.")
+    @Operation(summary = "Crear pago", description = "Programar un nuevo pago con los datos proporcionados. Necesario rol ADMIN o MANAGER.")
     @ApiResponses(value = {
-    @ApiResponse(responseCode = "201", description = "Pago creado",
+    @ApiResponse(responseCode = "201", description = "Pago programado",
         content = @Content(mediaType = "application/json",
         schema = @Schema(implementation = PaymentResponseDTO.class))),
     @ApiResponse(responseCode = "400", description = "Datos inválidos",
