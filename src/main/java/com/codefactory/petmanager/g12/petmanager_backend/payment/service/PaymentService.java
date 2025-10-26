@@ -5,6 +5,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.codefactory.petmanager.g12.petmanager_backend.payment.controller.dto.PaymentRequestDTO;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.controller.dto.PaymentResponseDTO;
+import com.codefactory.petmanager.g12.petmanager_backend.payment.controller.dto.PaymentsProductsDTO;
+import com.codefactory.petmanager.g12.petmanager_backend.payment.controller.dto.SupplierPaymentsResponseDTO;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.mapper.PaymentMapper;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.mapper.ProductMapper;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.model.Payment;
@@ -87,5 +89,43 @@ public class PaymentService {
     public List<PaymentCondition> getAllPaymentConditions() {
         List<PaymentCondition> paymentConditions = paymentConditionRepository.findAll();
         return paymentConditions;
+    }
+
+    @Transactional(readOnly = true)
+    public SupplierPaymentsResponseDTO getAllPaymentsBySupplierId(int supplierId) {
+    Supplier supplier = supplierRepository.findById(supplierId)
+                    .orElseThrow(() -> new IllegalArgumentException("No existe un proveedor con id: " + supplierId));
+    
+    List<Payment> supplierPayments = paymentRepository.findBySupplier(supplier);
+
+    List<PaymentResponseDTO> paymentsResponses = new ArrayList<>();
+
+    for (Payment payment : supplierPayments) {
+        List<PaymentsProducts> paymentsProducts = paymentProductsRepository.findByPayment(payment);
+
+        List<PaymentsProductsDTO> productDTOs = new ArrayList<>();
+        for (PaymentsProducts pp : paymentsProducts) {
+            PaymentsProductsDTO dto = new PaymentsProductsDTO();
+            dto.setProduct(productMapper.productToProductDTO(pp.getProduct()));
+            dto.setQuantity(pp.getQuantity());
+            dto.setPricePerUnit(pp.getPricePerUnit());
+            productDTOs.add(dto);
+        }
+
+        PaymentResponseDTO paymentResponse = new PaymentResponseDTO();
+        paymentResponse.setPaymentId(payment.getId());
+        paymentResponse.setPaymentDate(payment.getPaymentDate());
+        paymentResponse.setAmount(payment.getAmount());
+        paymentResponse.setNotes(payment.getNotes());
+        paymentResponse.setProducts(productDTOs);
+
+        paymentsResponses.add(paymentResponse);
+    }
+
+    SupplierPaymentsResponseDTO response = new SupplierPaymentsResponseDTO();
+    response.setSupplierId(supplierId);
+    response.setPayments(paymentsResponses);
+
+    return response;
     }
 }

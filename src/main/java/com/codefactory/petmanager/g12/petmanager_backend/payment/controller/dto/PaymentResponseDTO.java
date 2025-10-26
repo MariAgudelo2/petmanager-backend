@@ -1,8 +1,7 @@
 package com.codefactory.petmanager.g12.petmanager_backend.payment.controller.dto;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-
-import com.codefactory.petmanager.g12.petmanager_backend.supplier.model.Supplier;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,9 +12,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PaymentResponseDTO {
     
-    private Supplier supplier;
+    private int paymentId;
     private LocalDate paymentDate;
     private BigDecimal amount;
+    private List<PaymentsProductsDTO> products;
     private String notes;
 
 }

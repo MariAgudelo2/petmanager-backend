@@ -11,6 +11,7 @@ import com.codefactory.petmanager.g12.petmanager_backend.common.exceptions.dto.E
 import com.codefactory.petmanager.g12.petmanager_backend.payment.controller.dto.PaymentConditionsResponseDTO;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.controller.dto.PaymentRequestDTO;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.controller.dto.PaymentResponseDTO;
+import com.codefactory.petmanager.g12.petmanager_backend.payment.controller.dto.SupplierPaymentsResponseDTO;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.model.PaymentCondition;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.service.PaymentService;
 
@@ -52,11 +53,20 @@ public class PaymentController {
   @ApiResponse(responseCode = "200", description = "Operación exitosa",
       content = @Content(mediaType = "application/json",
       schema = @Schema(implementation = PaymentConditionsResponseDTO.class)))
-  @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
   @GetMapping("/conditions")
   public ResponseEntity<PaymentConditionsResponseDTO> getAllPaymentsConditions() {
     List<PaymentCondition> paymentConditions = paymentService.getAllPaymentConditions();
     PaymentConditionsResponseDTO responseDTO = new PaymentConditionsResponseDTO(paymentConditions);
     return ResponseEntity.ok(responseDTO);
+  }
+
+  @Operation(summary = "Obtener todos los registros de pagos de un proveedor", description = "Devuelve una lista de los registros de pago que tiene el proveedor dado su id")
+  @ApiResponse(responseCode = "200", description = "Operación exitosa",
+    content = @Content(mediaType = "application/json",
+    schema = @Schema(implementation = SupplierPaymentsResponseDTO.class)))
+  @GetMapping("/supplier/{supplierId}")
+  public ResponseEntity<SupplierPaymentsResponseDTO> getPaymentsBySupplierId(@PathVariable int supplierId) {
+    SupplierPaymentsResponseDTO response = paymentService.getAllPaymentsBySupplierId(supplierId);
+    return ResponseEntity.ok(response);
   }
 }
