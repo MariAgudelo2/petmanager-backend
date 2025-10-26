@@ -11,6 +11,7 @@ import com.codefactory.petmanager.g12.petmanager_backend.common.exceptions.dto.E
 import com.codefactory.petmanager.g12.petmanager_backend.payment.controller.dto.PaymentConditionsResponseDTO;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.controller.dto.PaymentRequestDTO;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.controller.dto.PaymentResponseDTO;
+import com.codefactory.petmanager.g12.petmanager_backend.payment.controller.dto.SupplierLastNextPaymentsResponseDTO;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.controller.dto.SupplierPaymentsResponseDTO;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.model.PaymentCondition;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.service.PaymentService;
@@ -67,6 +68,16 @@ public class PaymentController {
   @GetMapping("/supplier/{supplierId}")
   public ResponseEntity<SupplierPaymentsResponseDTO> getPaymentsBySupplierId(@PathVariable int supplierId) {
     SupplierPaymentsResponseDTO response = paymentService.getAllPaymentsBySupplierId(supplierId);
+    return ResponseEntity.ok(response);
+  }
+
+  @Operation(summary = "Obtener el último y siguiente pago programado de un proveedor", description = "Devuelve el último pago realizado a el proveedor y el pago siguiente que ha sido programado")
+  @ApiResponse(responseCode = "200", description = "operación exitosa",
+    content = @Content(mediaType = "application/json",
+    schema = @Schema(implementation = SupplierLastNextPaymentsResponseDTO.class)))
+  @GetMapping("/supplier/{supplierId}/last-and-next")
+  public ResponseEntity<SupplierLastNextPaymentsResponseDTO> getLastAndNextPaymentBySupplierId(@PathVariable int supplierId) {
+    SupplierLastNextPaymentsResponseDTO response = paymentService.getLastAndNextPaymentsBySupplierId(supplierId);
     return ResponseEntity.ok(response);
   }
 }

@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.controller.dto.PaymentRequestDTO;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.controller.dto.PaymentResponseDTO;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.controller.dto.PaymentsProductsDTO;
+import com.codefactory.petmanager.g12.petmanager_backend.payment.controller.dto.SupplierLastNextPaymentsResponseDTO;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.controller.dto.SupplierPaymentsResponseDTO;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.mapper.PaymentMapper;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.mapper.ProductMapper;
@@ -23,6 +24,7 @@ import com.codefactory.petmanager.g12.petmanager_backend.supplier.repository.Sup
 import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -93,14 +95,70 @@ public class PaymentService {
 
     @Transactional(readOnly = true)
     public SupplierPaymentsResponseDTO getAllPaymentsBySupplierId(int supplierId) {
-    Supplier supplier = supplierRepository.findById(supplierId)
-                    .orElseThrow(() -> new IllegalArgumentException("No existe un proveedor con id: " + supplierId));
-    
-    List<Payment> supplierPayments = paymentRepository.findBySupplier(supplier);
+        Supplier supplier = supplierRepository.findById(supplierId)
+                        .orElseThrow(() -> new IllegalArgumentException("No existe un proveedor con id: " + supplierId));
+        
+        List<Payment> supplierPayments = paymentRepository.findBySupplier(supplier);
 
-    List<PaymentResponseDTO> paymentsResponses = new ArrayList<>();
+        List<PaymentResponseDTO> paymentsResponses = new ArrayList<>();
 
-    for (Payment payment : supplierPayments) {
+        for (Payment payment : supplierPayments) {
+            List<PaymentsProducts> paymentsProducts = paymentProductsRepository.findByPayment(payment);
+
+            List<PaymentsProductsDTO> productDTOs = new ArrayList<>();
+            for (PaymentsProducts pp : paymentsProducts) {
+                PaymentsProductsDTO dto = new PaymentsProductsDTO();
+                dto.setProduct(productMapper.productToProductDTO(pp.getProduct()));
+                dto.setQuantity(pp.getQuantity());
+                dto.setPricePerUnit(pp.getPricePerUnit());
+                productDTOs.add(dto);
+            }
+
+            PaymentResponseDTO paymentResponse = new PaymentResponseDTO();
+            paymentResponse.setPaymentId(payment.getId());
+            paymentResponse.setPaymentDate(payment.getPaymentDate());
+            paymentResponse.setAmount(payment.getAmount());
+            paymentResponse.setNotes(payment.getNotes());
+            paymentResponse.setProducts(productDTOs);
+
+            paymentsResponses.add(paymentResponse);
+        }
+
+        SupplierPaymentsResponseDTO response = new SupplierPaymentsResponseDTO();
+        response.setSupplierId(supplierId);
+        response.setPayments(paymentsResponses);
+
+        return response;
+    }
+
+    @Transactional(readOnly = true)
+    public SupplierLastNextPaymentsResponseDTO getLastAndNextPaymentsBySupplierId(int supplierId) {
+        Supplier supplier = supplierRepository.findById(supplierId)
+                .orElseThrow(() -> new IllegalArgumentException("No existe un proveedor con id: " + supplierId));
+
+        LocalDate today = LocalDate.now();
+
+        Payment lastPayment = paymentRepository
+                .findTopBySupplierAndPaymentDateLessThanEqualOrderByPaymentDateDesc(supplier, today)
+                .orElse(null);
+
+        Payment nextPayment = paymentRepository
+                .findTopBySupplierAndPaymentDateAfterOrderByPaymentDateAsc(supplier, today)
+                .orElse(null);
+
+        PaymentResponseDTO lastPaymentDTO = lastPayment != null ? buildPaymentResponseDTO(lastPayment) : null;
+        PaymentResponseDTO nextPaymentDTO = nextPayment != null ? buildPaymentResponseDTO(nextPayment) : null;
+
+        SupplierLastNextPaymentsResponseDTO response = new SupplierLastNextPaymentsResponseDTO();
+        response.setSupplierId(supplierId);
+        response.setLast(lastPaymentDTO);
+        response.setNext(nextPaymentDTO);
+
+        return response;
+    }
+
+    @Transactional(readOnly = true)
+    private PaymentResponseDTO buildPaymentResponseDTO(Payment payment) {
         List<PaymentsProducts> paymentsProducts = paymentProductsRepository.findByPayment(payment);
 
         List<PaymentsProductsDTO> productDTOs = new ArrayList<>();
@@ -119,13 +177,6 @@ public class PaymentService {
         paymentResponse.setNotes(payment.getNotes());
         paymentResponse.setProducts(productDTOs);
 
-        paymentsResponses.add(paymentResponse);
-    }
-
-    SupplierPaymentsResponseDTO response = new SupplierPaymentsResponseDTO();
-    response.setSupplierId(supplierId);
-    response.setPayments(paymentsResponses);
-
-    return response;
+        return paymentResponse;
     }
 }
