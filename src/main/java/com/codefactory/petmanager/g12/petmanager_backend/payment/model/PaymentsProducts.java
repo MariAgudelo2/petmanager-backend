@@ -40,4 +40,6 @@ public class PaymentsProducts {
   @Column(name = "price_per_unit", nullable = false)
   private BigDecimal pricePerUnit;
   
+  @Column(name = "total_amount", nullable = false)
+  private BigDecimal totalAmount;
 }
