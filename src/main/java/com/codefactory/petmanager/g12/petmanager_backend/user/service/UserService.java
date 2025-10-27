@@ -58,11 +58,13 @@ public class UserService {
             throw new IllegalArgumentException("Un usuario con el email: " + userRequestDTO.getEmail() + " ya existe!");
         }
 
-        if (!isRoleValid(userRequestDTO.getRoleId())) {
-            throw new IllegalArgumentException("role id invalido: " + userRequestDTO.getRoleId());
-        }
+        Role employeeRole = roleRepository.findByName("EMPLOYEE")  // Rol empleado por defecto
+                            .orElseThrow(() -> new InternalError("No se encontró el rol EMPLEADO en la base de datos"));
+
         User user = userMapper.userRequestDTOToUser(userRequestDTO);
         user.setPassword(passwordEncoder.encode(userRequestDTO.getPassword()));
+        user.setRole(employeeRole);
+        user.setActive(true);
         User savedUser = userRepository.save(user);
         return userMapper.userToUserResponseDTO(savedUser);
     }
@@ -91,7 +93,4 @@ public class UserService {
         return userMapper.roleToRoleDTO(role);
     }
 
-    private boolean isRoleValid(int roleId) {
-        return roleRepository.existsById(roleId);
-    }
 }

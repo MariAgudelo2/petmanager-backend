@@ -1,6 +1,8 @@
 package com.codefactory.petmanager.g12.petmanager_backend.supplier.service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -57,12 +59,17 @@ public class SupplierService {
     String address,
     Integer paymentConditionId,
     Pageable pageable) {
+    
+    List<Specification<Supplier>> specs = new ArrayList<>();
+    specs.add(SupplierSpecification.nameContains(name));
+    specs.add(SupplierSpecification.nitContains(nit));
+    specs.add(SupplierSpecification.addressContains(address));
+    specs.add(SupplierSpecification.paymentConditionEquals(paymentConditionId));
 
-    Specification<Supplier> spec = Specification
-            .where(SupplierSpecification.nameContains(name))
-            .and(SupplierSpecification.nitContains(nit))
-            .and(SupplierSpecification.addressContains(address))
-            .and(SupplierSpecification.paymentConditionEquals(paymentConditionId));
+    Specification<Supplier> spec = specs.stream()
+                    .filter(Objects::nonNull)
+                    .reduce(Specification::and)
+                    .orElse(null);
 
     Page<Supplier> resultPage = supplierRepository.findAll(spec, pageable);
     return resultPage.map(supplierMapper::supplierToSupplierResponseDTO);
