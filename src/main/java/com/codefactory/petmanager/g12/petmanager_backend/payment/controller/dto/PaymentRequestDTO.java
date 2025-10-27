@@ -3,6 +3,7 @@ package com.codefactory.petmanager.g12.petmanager_backend.payment.controller.dto
 import java.time.LocalDate;
 import java.util.List;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -23,6 +24,7 @@ public class PaymentRequestDTO {
     private LocalDate paymentDate;
 
     @NotEmpty(message = "La lista de productos no puede estar vacía")
+    @Valid
     private List<PaymentsProductsDTO> products;
 
     private String notes;
