@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -20,7 +21,7 @@ public class PaymentRequestDTO {
     private Integer supplierId;
 
     @NotNull(message = "La fecha de pago es requerida")
-    @FutureOrPresent(message = "La fecha de pago no puede ser anterior a la actual")
+    @Future(message = "La fecha de pago debe ser posterior a la fecha actual")
     private LocalDate paymentDate;
 
     @NotEmpty(message = "La lista de productos no puede estar vacía")
