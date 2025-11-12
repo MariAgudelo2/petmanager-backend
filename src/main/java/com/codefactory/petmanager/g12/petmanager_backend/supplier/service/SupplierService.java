@@ -34,8 +34,7 @@ public class SupplierService {
 
   @Transactional(readOnly = true)
   public SupplierResponseDTO getSupplierById(int supplierId) {
-      Supplier supplier = supplierRepository.findById(supplierId)
-              .orElseThrow(() -> new EntityNotFoundException("No se ha encontrado un proveedor con id: " + supplierId));
+      Supplier supplier = getSupplierOrThrow(supplierId);
       return supplierMapper.supplierToSupplierResponseDTO(supplier);
   }
 
@@ -59,17 +58,8 @@ public class SupplierService {
     String address,
     Integer paymentConditionId,
     Pageable pageable) {
-    
-    List<Specification<Supplier>> specs = new ArrayList<>();
-    specs.add(SupplierSpecification.nameContains(name));
-    specs.add(SupplierSpecification.nitContains(nit));
-    specs.add(SupplierSpecification.addressContains(address));
-    specs.add(SupplierSpecification.paymentConditionEquals(paymentConditionId));
 
-    Specification<Supplier> spec = specs.stream()
-                    .filter(Objects::nonNull)
-                    .reduce(Specification::and)
-                    .orElse(null);
+    Specification<Supplier> spec = buildSpecification(name, nit, address, paymentConditionId);
 
     Page<Supplier> resultPage = supplierRepository.findAll(spec, pageable);
     return resultPage.map(supplierMapper::supplierToSupplierResponseDTO);
@@ -83,19 +73,11 @@ public class SupplierService {
 
   @Transactional
   public SupplierResponseDTO createSupplier(SupplierRequestDTO supplierRequestDTO) {
-      if (supplierRepository.existsByNit(supplierRequestDTO.getNit())) {
-          throw new IllegalArgumentException("Un proveedor con NIT " + supplierRequestDTO.getNit() + " ya existe!");
-      }
-      
-      Optional<Supplier> existingSupplier = supplierRepository.findByName(supplierRequestDTO.getName());
-      if (existingSupplier.isPresent()) {
-          throw new IllegalArgumentException("Un proveedor con el nombre " + supplierRequestDTO.getName() + " ya existe!");
-      }
+      validateUniqueNit(supplierRequestDTO.getNit(), null);
+      validateUniqueName(supplierRequestDTO.getName(), null);
 
-      int paymentConditionId = supplierRequestDTO.getPaymentConditionId() != null ? supplierRequestDTO.getPaymentConditionId() : 1;
-
-      PaymentCondition paymentCondition = paymentConditionRepository.findById(paymentConditionId)
-                    .orElseThrow(() -> new EntityNotFoundException("No se ha encontrado una condición de pago con id: " + supplierRequestDTO.getPaymentConditionId()));
+      int paymentConditionId = Optional.ofNullable(supplierRequestDTO.getPaymentConditionId()).orElse(1);
+      PaymentCondition paymentCondition = getPaymentConditionOrThrow(paymentConditionId);
       
       Supplier supplier = supplierMapper.supplierRequestDTOToSupplier(supplierRequestDTO);
       supplier.setPaymentCondition(paymentCondition);
@@ -106,41 +88,24 @@ public class SupplierService {
 
   @Transactional
   public SupplierResponseDTO updateSupplier(int supplierId, SupplierUpdateDTO supplierUpdateDTO) {
-      Supplier existingSupplier = supplierRepository.findById(supplierId)
-              .orElseThrow(() -> new EntityNotFoundException("No se ha encontrado un proveedor con id: " + supplierId));
+      Supplier existingSupplier = getSupplierOrThrow(supplierId);
       
       if (supplierUpdateDTO.getNit() != null) {
-          if (!existingSupplier.getNit().equals(supplierUpdateDTO.getNit()) && 
-              supplierRepository.existsByNit(supplierUpdateDTO.getNit())) {
-              throw new IllegalArgumentException("Un proveedor con NIT " + supplierUpdateDTO.getNit() + " ya existe!");
-          }
+          validateUniqueNit(supplierUpdateDTO.getNit(), supplierId);
           existingSupplier.setNit(supplierUpdateDTO.getNit());
       }
       
       if (supplierUpdateDTO.getName() != null) {
-          if (!existingSupplier.getName().equals(supplierUpdateDTO.getName()) && 
-              supplierRepository.findByName(supplierUpdateDTO.getName()).isPresent()) {
-              throw new IllegalArgumentException("Un proveedor con el nombre " + supplierUpdateDTO.getName() + " ya existe!");
-          }
+          validateUniqueName(supplierUpdateDTO.getName(), supplierId);
           existingSupplier.setName(supplierUpdateDTO.getName());
       }
       
-      if (supplierUpdateDTO.getPhoneNumber() != null) {
-          existingSupplier.setPhoneNumber(supplierUpdateDTO.getPhoneNumber());
-      }
-      
-      if (supplierUpdateDTO.getAddress() != null) {
-          existingSupplier.setAddress(supplierUpdateDTO.getAddress());
-      }
+      if (supplierUpdateDTO.getPhoneNumber() != null) existingSupplier.setPhoneNumber(supplierUpdateDTO.getPhoneNumber());
+      if (supplierUpdateDTO.getAddress() != null) existingSupplier.setAddress(supplierUpdateDTO.getAddress());
+      if (supplierUpdateDTO.getPaymentNotes() != null) existingSupplier.setPaymentNotes(supplierUpdateDTO.getPaymentNotes());
 
       if (supplierUpdateDTO.getPaymentConditionId() != null) {
-          PaymentCondition newPaymentCondition = paymentConditionRepository.findById(supplierUpdateDTO.getPaymentConditionId())
-                        .orElseThrow(() -> new EntityNotFoundException("No se ha encontrado una condición de pago con id: " + supplierUpdateDTO.getPaymentConditionId()));
-          existingSupplier.setPaymentCondition(newPaymentCondition);
-      }
-
-      if (supplierUpdateDTO.getPaymentNotes() != null) {
-          existingSupplier.setPaymentNotes(supplierUpdateDTO.getPaymentNotes());
+          existingSupplier.setPaymentCondition(getPaymentConditionOrThrow(supplierUpdateDTO.getPaymentConditionId()));
       }
       
       Supplier updatedSupplier = supplierRepository.save(existingSupplier);
@@ -149,10 +114,8 @@ public class SupplierService {
 
   @Transactional
   public void deleteSupplier(int supplierId) {
-      if (!supplierRepository.existsById(supplierId)) {
-          throw new EntityNotFoundException("No se ha encontrado un proveedor con id: " + supplierId);
-      }
-      supplierRepository.deleteById(supplierId);
+      Supplier supplier = getSupplierOrThrow(supplierId);
+      supplierRepository.delete(supplier);
   }
 
   @Transactional(readOnly = true)
@@ -163,5 +126,44 @@ public class SupplierService {
   @Transactional(readOnly = true)
   public boolean existsByName(String name) {
       return supplierRepository.findByName(name).isPresent();
+  }
+
+  private Supplier getSupplierOrThrow(int supplierId) {
+      return supplierRepository.findById(supplierId)
+              .orElseThrow(() -> new EntityNotFoundException("No se ha encontrado un proveedor con id: " + supplierId));
+  }
+
+  private PaymentCondition getPaymentConditionOrThrow(int paymentConditionId) {
+      return paymentConditionRepository.findById(paymentConditionId)
+              .orElseThrow(() -> new EntityNotFoundException("No se ha encontrado una condición de pago con id: " + paymentConditionId));
+  }
+
+  private Specification<Supplier> buildSpecification(String name, String nit, String address, Integer paymentConditionId) {
+    List<Specification<Supplier>> specs = new ArrayList<>();
+    specs.add(SupplierSpecification.nameContains(name));
+    specs.add(SupplierSpecification.nitContains(nit));
+    specs.add(SupplierSpecification.addressContains(address));
+    specs.add(SupplierSpecification.paymentConditionEquals(paymentConditionId));
+
+    return specs.stream()
+            .filter(Objects::nonNull)
+            .reduce(Specification::and)
+            .orElse(null);
+  }
+
+  private void validateUniqueNit(String nit, Integer excludeId) {
+      supplierRepository.findByNit(nit).ifPresent(existing -> {
+          if (excludeId == null || existing.getId() != excludeId) {
+              throw new IllegalArgumentException("Un proveedor con NIT " + nit + " ya existe!");
+          }
+      });
+  }
+
+  private void validateUniqueName(String name, Integer excludeId) {
+      supplierRepository.findByName(name).ifPresent(existing -> {
+          if (excludeId == null || existing.getId() != excludeId) {
+              throw new IllegalArgumentException("Un proveedor con el nombre " + name + " ya existe!");
+          }
+      });
   }
 }
