@@ -9,25 +9,22 @@ import com.codefactory.petmanager.g12.petmanager_backend.payment.controller.dto.
 import com.codefactory.petmanager.g12.petmanager_backend.payment.controller.dto.SupplierLastNextPaymentsResponseDTO;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.controller.dto.SupplierPaymentsResponseDTO;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.mapper.PaymentMapper;
-import com.codefactory.petmanager.g12.petmanager_backend.payment.mapper.ProductMapper;
+import com.codefactory.petmanager.g12.petmanager_backend.payment.mapper.PaymentsProductsMapper;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.model.Payment;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.model.PaymentCondition;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.model.PaymentsProducts;
-import com.codefactory.petmanager.g12.petmanager_backend.payment.model.Product;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.repository.PaymentConditionRepository;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.repository.PaymentRepository;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.repository.PaymentsProductsRepository;
-import com.codefactory.petmanager.g12.petmanager_backend.payment.repository.ProductRepository;
 import com.codefactory.petmanager.g12.petmanager_backend.supplier.model.Supplier;
 import com.codefactory.petmanager.g12.petmanager_backend.supplier.repository.SupplierRepository;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
-
 
 @Service
 @RequiredArgsConstructor
@@ -35,119 +32,68 @@ public class PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final SupplierRepository supplierRepository;
-    private final ProductRepository productRepository;
-    private final PaymentsProductsRepository paymentProductsRepository;
+    private final PaymentsProductsRepository paymentsProductsRepository;
     private final PaymentConditionRepository paymentConditionRepository;
     private final PaymentMapper paymentMapper;
-    private final ProductMapper productMapper;
+    private final PaymentsProductsMapper paymentsProductsMapper;
+    private final ProductService productService;
 
     @Transactional
     public PaymentResponseDTO createPayment(PaymentRequestDTO paymentRequestDTO) {
-        Supplier supplier = supplierRepository.findById(paymentRequestDTO.getSupplierId())
-                        .orElseThrow(() -> new IllegalArgumentException("No existe un proveedor con id: " + paymentRequestDTO.getSupplierId()));
-
-        Payment payment = new Payment();
-        payment.setSupplier(supplier);
-        payment.setPaymentDate(paymentRequestDTO.getPaymentDate());
-        payment.setNotes(paymentRequestDTO.getNotes());
-
-        BigDecimal totalAmount = BigDecimal.ZERO;
-        for (var productDTO : paymentRequestDTO.getProducts()) {
-            BigDecimal subtotal = productDTO.getPricePerUnit()
-                            .multiply(BigDecimal.valueOf(productDTO.getQuantity()));
-            totalAmount = totalAmount.add(subtotal);
-        }
-        payment.setAmount(totalAmount);
+        Supplier supplier = getSupplierOrThrow(paymentRequestDTO.getSupplierId());
+        
+        Payment payment = buildPayment(supplier, paymentRequestDTO);
         Payment savedPayment = paymentRepository.save(payment);
-
-        List<PaymentsProducts> paymentProductsList = new ArrayList<>();
-
-        for (var productDTO : paymentRequestDTO.getProducts()) {
-            Product mappedProduct = productMapper.productDTOToProduct(productDTO.getProduct());
-            Product savedProduct = null;
-            // Comprobar si el producto ya existe en la bd o crear uno nuevo
-            if (productRepository.existsByNameIgnoreCaseAndBrandIgnoreCase(mappedProduct.getName(), mappedProduct.getBrand())) {
-                savedProduct = productRepository.findByNameIgnoreCaseAndBrandIgnoreCase(mappedProduct.getName(), mappedProduct.getBrand());
-            } else {
-                savedProduct = productRepository.save(mappedProduct);
-            }
-
-            PaymentsProducts paymentProduct = new PaymentsProducts();
-            paymentProduct.setPayment(savedPayment);
-            paymentProduct.setProduct(savedProduct);
-            paymentProduct.setQuantity(productDTO.getQuantity());
-            paymentProduct.setPricePerUnit(productDTO.getPricePerUnit());
-            paymentProduct.setTotalAmount(productDTO.getPricePerUnit()
-                            .multiply(BigDecimal.valueOf(productDTO.getQuantity())));
-            paymentProductsList.add(paymentProduct);
-        }
-
-        paymentProductsRepository.saveAll(paymentProductsList);
-
-        return paymentMapper.paymentToPaymentResponseDTO(savedPayment);
+        
+        List<PaymentsProducts> paymentProductsList = createPaymentProductsList(
+            savedPayment, 
+            paymentRequestDTO.getProducts()
+        );
+        List<PaymentsProducts> savedPaymentProducts = paymentsProductsRepository.saveAll(paymentProductsList);
+        
+        return buildPaymentResponseDTO(savedPayment, savedPaymentProducts);
     }
 
     @Transactional(readOnly = true)
     public List<PaymentCondition> getAllPaymentConditions() {
-        List<PaymentCondition> paymentConditions = paymentConditionRepository.findAll();
-        return paymentConditions;
+        return paymentConditionRepository.findAll();
     }
 
     @Transactional(readOnly = true)
     public SupplierPaymentsResponseDTO getAllPaymentsBySupplierId(int supplierId) {
-        Supplier supplier = supplierRepository.findById(supplierId)
-                        .orElseThrow(() -> new IllegalArgumentException("No existe un proveedor con id: " + supplierId));
-        
+        Supplier supplier = getSupplierOrThrow(supplierId);
         List<Payment> supplierPayments = paymentRepository.findBySupplier(supplier);
-
-        List<PaymentResponseDTO> paymentsResponses = new ArrayList<>();
-
-        for (Payment payment : supplierPayments) {
-            List<PaymentsProducts> paymentsProducts = paymentProductsRepository.findByPayment(payment);
-
-            List<PaymentsProductsDTO> productDTOs = new ArrayList<>();
-            for (PaymentsProducts pp : paymentsProducts) {
-                PaymentsProductsDTO dto = new PaymentsProductsDTO();
-                dto.setProduct(productMapper.productToProductDTO(pp.getProduct()));
-                dto.setQuantity(pp.getQuantity());
-                dto.setPricePerUnit(pp.getPricePerUnit());
-                productDTOs.add(dto);
-            }
-
-            PaymentResponseDTO paymentResponse = new PaymentResponseDTO();
-            paymentResponse.setPaymentId(payment.getId());
-            paymentResponse.setPaymentDate(payment.getPaymentDate());
-            paymentResponse.setAmount(payment.getAmount());
-            paymentResponse.setNotes(payment.getNotes());
-            paymentResponse.setProducts(productDTOs);
-
-            paymentsResponses.add(paymentResponse);
-        }
-
+        
+        List<PaymentResponseDTO> paymentsResponses = supplierPayments.stream()
+            .map(this::buildPaymentResponseDTO)
+            .toList();
+        
         SupplierPaymentsResponseDTO response = new SupplierPaymentsResponseDTO();
         response.setSupplierId(supplierId);
         response.setPayments(paymentsResponses);
-
+        
         return response;
     }
 
     @Transactional(readOnly = true)
     public SupplierLastNextPaymentsResponseDTO getLastAndNextPaymentsBySupplierId(int supplierId) {
-        Supplier supplier = supplierRepository.findById(supplierId)
-                .orElseThrow(() -> new IllegalArgumentException("No existe un proveedor con id: " + supplierId));
-
+        Supplier supplier = getSupplierOrThrow(supplierId);
         LocalDate today = LocalDate.now();
 
         Payment lastPayment = paymentRepository
-                .findTopBySupplierAndPaymentDateLessThanEqualOrderByPaymentDateDesc(supplier, today)
-                .orElse(null);
+            .findTopBySupplierAndPaymentDateLessThanEqualOrderByPaymentDateDesc(supplier, today)
+            .orElse(null);
 
         Payment nextPayment = paymentRepository
-                .findTopBySupplierAndPaymentDateAfterOrderByPaymentDateAsc(supplier, today)
-                .orElse(null);
+            .findTopBySupplierAndPaymentDateAfterOrderByPaymentDateAsc(supplier, today)
+            .orElse(null);
 
-        PaymentResponseDTO lastPaymentDTO = lastPayment != null ? buildPaymentResponseDTO(lastPayment) : null;
-        PaymentResponseDTO nextPaymentDTO = nextPayment != null ? buildPaymentResponseDTO(nextPayment) : null;
+        PaymentResponseDTO lastPaymentDTO = lastPayment != null 
+            ? buildPaymentResponseDTO(lastPayment) 
+            : null;
+        PaymentResponseDTO nextPaymentDTO = nextPayment != null 
+            ? buildPaymentResponseDTO(nextPayment) 
+            : null;
 
         SupplierLastNextPaymentsResponseDTO response = new SupplierLastNextPaymentsResponseDTO();
         response.setSupplierId(supplierId);
@@ -156,27 +102,60 @@ public class PaymentService {
 
         return response;
     }
+    
+    private Payment buildPayment(Supplier supplier, PaymentRequestDTO dto) {
+        Payment payment = new Payment();
+        payment.setSupplier(supplier);
+        payment.setPaymentDate(dto.getPaymentDate());
+        payment.setNotes(dto.getNotes());
+        payment.setAmount(calculateTotalAmount(dto.getProducts()));
+        return payment;
+    }
 
-    @Transactional(readOnly = true)
+    private BigDecimal calculateTotalAmount(List<PaymentsProductsDTO> products) {
+        return products.stream()
+            .map(p -> p.getPricePerUnit().multiply(BigDecimal.valueOf(p.getQuantity())))
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    private List<PaymentsProducts> createPaymentProductsList(
+            Payment payment, 
+            List<PaymentsProductsDTO> productDTOs) {
+        return productDTOs.stream()
+            .map(dto -> createPaymentProduct(payment, dto))
+            .toList();
+    }
+
+    private PaymentsProducts createPaymentProduct(Payment payment, PaymentsProductsDTO dto) {
+        var product = productService.findOrCreateProduct(dto.getProduct());
+        
+        PaymentsProducts paymentProduct = new PaymentsProducts();
+        paymentProduct.setPayment(payment);
+        paymentProduct.setProduct(product);
+        paymentProduct.setQuantity(dto.getQuantity());
+        paymentProduct.setPricePerUnit(dto.getPricePerUnit());
+        paymentProduct.setTotalAmount(dto.getPricePerUnit().multiply(BigDecimal.valueOf(dto.getQuantity())));
+        
+        return paymentProduct;
+    }
+
     private PaymentResponseDTO buildPaymentResponseDTO(Payment payment) {
-        List<PaymentsProducts> paymentsProducts = paymentProductsRepository.findByPayment(payment);
+        List<PaymentsProducts> paymentsProducts = paymentsProductsRepository.findByPayment(payment);
+        
+        return buildPaymentResponseDTO(payment, paymentsProducts);
+    }
 
-        List<PaymentsProductsDTO> productDTOs = new ArrayList<>();
-        for (PaymentsProducts pp : paymentsProducts) {
-            PaymentsProductsDTO dto = new PaymentsProductsDTO();
-            dto.setProduct(productMapper.productToProductDTO(pp.getProduct()));
-            dto.setQuantity(pp.getQuantity());
-            dto.setPricePerUnit(pp.getPricePerUnit());
-            productDTOs.add(dto);
-        }
+    private PaymentResponseDTO buildPaymentResponseDTO(Payment payment, List<PaymentsProducts> paymentsProducts) {
+        List<PaymentsProductsDTO> productDTOs = paymentsProductsMapper.paymentsProductsListToPaymentsProductsDTOList(paymentsProducts);
+        
+        PaymentResponseDTO response = paymentMapper.paymentToPaymentResponseDTO(payment);
+        response.setProducts(productDTOs);
+        
+        return response;
+    }
 
-        PaymentResponseDTO paymentResponse = new PaymentResponseDTO();
-        paymentResponse.setPaymentId(payment.getId());
-        paymentResponse.setPaymentDate(payment.getPaymentDate());
-        paymentResponse.setAmount(payment.getAmount());
-        paymentResponse.setNotes(payment.getNotes());
-        paymentResponse.setProducts(productDTOs);
-
-        return paymentResponse;
+    private Supplier getSupplierOrThrow(int supplierId) {
+        return supplierRepository.findById(supplierId)
+            .orElseThrow(() -> new EntityNotFoundException("No se ha encontrado un proveedor con id: " + supplierId));
     }
 }
