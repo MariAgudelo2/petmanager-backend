@@ -13,10 +13,12 @@ import com.codefactory.petmanager.g12.petmanager_backend.payment.controller.dto.
 import com.codefactory.petmanager.g12.petmanager_backend.payment.controller.dto.PaymentResponseDTO;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.controller.dto.SupplierLastNextPaymentsResponseDTO;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.controller.dto.SupplierPaymentsResponseDTO;
+import com.codefactory.petmanager.g12.petmanager_backend.payment.controller.dto.UpcomingPaymentAlertDTO;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.model.PaymentCondition;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.service.PaymentService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -79,5 +81,16 @@ public class PaymentController {
   public ResponseEntity<SupplierLastNextPaymentsResponseDTO> getLastAndNextPaymentBySupplierId(@PathVariable int supplierId) {
     SupplierLastNextPaymentsResponseDTO response = paymentService.getLastAndNextPaymentsBySupplierId(supplierId);
     return ResponseEntity.ok(response);
+  }
+
+  @Operation(summary = "Obtener alertas de los proximos pagos en los siguientes 10 días", description = "Devuelve la lista de los pagos a los proveedores que existen en los siguientes 10 días")
+  @ApiResponse(responseCode = "200", description = "operación exitosa",
+    content = @Content(mediaType = "application/json",
+    array = @ArraySchema(schema = @Schema(implementation = UpcomingPaymentAlertDTO.class))))
+  @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+  @GetMapping("/alerts")
+  public ResponseEntity<List<UpcomingPaymentAlertDTO>> getUpcomingPaymentsAlerts() {
+    List<UpcomingPaymentAlertDTO> alerts = paymentService.getUpcomingPayments();
+    return ResponseEntity.ok(alerts);
   }
 }

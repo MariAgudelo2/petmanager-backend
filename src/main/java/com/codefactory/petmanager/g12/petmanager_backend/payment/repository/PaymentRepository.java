@@ -13,6 +13,7 @@ import com.codefactory.petmanager.g12.petmanager_backend.supplier.model.Supplier
 public interface PaymentRepository extends JpaRepository<Payment, Integer> {
     List<Payment> findBySupplierName(String name);
     List<Payment> findBySupplier(Supplier supplier);
+    List<Payment> findByPaymentDateBetween(LocalDate startDate, LocalDate endDate);
     Optional<Payment> findTopBySupplierAndPaymentDateLessThanEqualOrderByPaymentDateDesc(Supplier supplier, LocalDate date);
     Optional<Payment> findTopBySupplierAndPaymentDateAfterOrderByPaymentDateAsc(Supplier supplier, LocalDate date);
 }
