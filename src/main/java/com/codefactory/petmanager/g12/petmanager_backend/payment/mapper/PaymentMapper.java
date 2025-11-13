@@ -22,6 +22,7 @@ public interface PaymentMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "supplier", ignore = true)
     @Mapping(target = "amount", ignore = true)
+    @Mapping(target = "paymentsProducts", ignore = true)
     Payment paymentRequestDTOToPayment(PaymentRequestDTO paymentRequestDTO);
     
     List<PaymentResponseDTO> paymentsToPaymentResponseDTOs(List<Payment> payments);
