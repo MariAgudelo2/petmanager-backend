@@ -12,14 +12,15 @@ import com.codefactory.petmanager.g12.petmanager_backend.payment.controller.dto.
 import com.codefactory.petmanager.g12.petmanager_backend.payment.controller.dto.UpcomingPaymentAlertDTO;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.mapper.PaymentMapper;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.mapper.PaymentsProductsMapper;
-import com.codefactory.petmanager.g12.petmanager_backend.payment.mapper.ProductMapper;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.model.Payment;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.model.PaymentCondition;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.model.PaymentsProducts;
-import com.codefactory.petmanager.g12.petmanager_backend.payment.model.Product;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.repository.PaymentConditionRepository;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.repository.PaymentRepository;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.repository.PaymentsProductsRepository;
+import com.codefactory.petmanager.g12.petmanager_backend.product.mapper.ProductMapper;
+import com.codefactory.petmanager.g12.petmanager_backend.product.model.Product;
+import com.codefactory.petmanager.g12.petmanager_backend.product.service.ProductService;
 import com.codefactory.petmanager.g12.petmanager_backend.supplier.model.Supplier;
 import com.codefactory.petmanager.g12.petmanager_backend.supplier.repository.SupplierRepository;
 

@@ -1,12 +1,12 @@
-package com.codefactory.petmanager.g12.petmanager_backend.payment.service;
+package com.codefactory.petmanager.g12.petmanager_backend.product.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.codefactory.petmanager.g12.petmanager_backend.payment.controller.dto.ProductDTO;
-import com.codefactory.petmanager.g12.petmanager_backend.payment.mapper.ProductMapper;
-import com.codefactory.petmanager.g12.petmanager_backend.payment.model.Product;
-import com.codefactory.petmanager.g12.petmanager_backend.payment.repository.ProductRepository;
+import com.codefactory.petmanager.g12.petmanager_backend.product.mapper.ProductMapper;
+import com.codefactory.petmanager.g12.petmanager_backend.product.model.Product;
+import com.codefactory.petmanager.g12.petmanager_backend.product.repository.ProductRepository;
 
 import lombok.RequiredArgsConstructor;
 

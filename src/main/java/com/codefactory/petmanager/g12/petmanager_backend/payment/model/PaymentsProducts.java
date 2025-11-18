@@ -2,6 +2,8 @@ package com.codefactory.petmanager.g12.petmanager_backend.payment.model;
 
 import java.math.BigDecimal;
 
+import com.codefactory.petmanager.g12.petmanager_backend.product.model.Product;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

@@ -1,4 +1,4 @@
-package com.codefactory.petmanager.g12.petmanager_backend.payment.model;
+package com.codefactory.petmanager.g12.petmanager_backend.product.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

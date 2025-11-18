@@ -1,4 +1,4 @@
-package com.codefactory.petmanager.g12.petmanager_backend.payment.mapper;
+package com.codefactory.petmanager.g12.petmanager_backend.product.mapper;
 
 import java.util.List;
 
@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import com.codefactory.petmanager.g12.petmanager_backend.payment.controller.dto.ProductDTO;
-import com.codefactory.petmanager.g12.petmanager_backend.payment.model.Product;
+import com.codefactory.petmanager.g12.petmanager_backend.product.model.Product;
 
 @Mapper(componentModel = "spring")
 public interface ProductMapper {

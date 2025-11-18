@@ -7,6 +7,7 @@ import org.mapstruct.Mapping;
 
 import com.codefactory.petmanager.g12.petmanager_backend.payment.controller.dto.PaymentsProductsDTO;
 import com.codefactory.petmanager.g12.petmanager_backend.payment.model.PaymentsProducts;
+import com.codefactory.petmanager.g12.petmanager_backend.product.mapper.ProductMapper;
 
 @Mapper(componentModel = "spring", uses = {ProductMapper.class})
 public interface PaymentsProductsMapper {

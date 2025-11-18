@@ -3,7 +3,7 @@ package com.codefactory.petmanager.g12.petmanager_backend.payment.controller.dto
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import com.codefactory.petmanager.g12.petmanager_backend.payment.model.Product;
+import com.codefactory.petmanager.g12.petmanager_backend.product.model.Product;
 
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Min;
